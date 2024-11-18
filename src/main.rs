@@ -5,5 +5,5 @@ fn main() {
     println!("Args: {:?}", args);
 
     let status = GitStatus::new(&args[1]).unwrap();
-    println!("{}", status);
+    println!("{}", status.status_line());
 }

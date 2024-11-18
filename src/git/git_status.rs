@@ -56,6 +56,29 @@ impl GitStatus {
         &self.untracked
     }
 
+    pub fn num_tracked(&self) -> usize {
+        self.tracked_changes.len()
+    }
+
+    pub fn num_untracked(&self) -> usize {
+        self.untracked.len()
+    }
+
+    pub fn total_changes(&self) -> usize {
+        self.num_tracked() + self.num_untracked()
+    }
+
+    pub fn status_line(&self) -> String {
+        format!(
+            "[{}: ↑{} ↓{} | {} change{}]",
+            self.branch,
+            self.ahead,
+            self.behind,
+            self.total_changes(),
+            if self.total_changes() > 1 { "s" } else { "" }
+        )
+    }
+
     fn parse(status: &str) -> Option<Self> {
         let mut oid = None;
         let mut branch = None;
