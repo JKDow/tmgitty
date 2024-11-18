@@ -1,9 +1,9 @@
+use serde::{Deserialize, Serialize};
 use crate::git::parse::StatusHeader;
-
 use super::{git_error::GitError, utils::status};
 use std::{fmt, path::Path};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct GitStatus {
     /// The commit hash of the last commit Header:oid
     commit: String,
@@ -77,6 +77,10 @@ impl GitStatus {
             self.total_changes(),
             if self.total_changes() != 1 { "s" } else { "" }
         )
+    }
+
+    pub fn json(&self) -> String {
+        serde_json::to_string(self).expect("Serialization should not fail")
     }
 
     fn parse(status: &str) -> Option<Self> {

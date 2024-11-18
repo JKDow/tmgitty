@@ -12,7 +12,7 @@ pub fn fetch_and_status(path: impl AsRef<Path>) -> Result<String, GitError> {
 /// Returns `Ok(())` if the fetch was successful, otherwise returns an error.
 pub fn fetch(path: impl AsRef<Path>) -> Result<(), GitError> {
     let path = path.as_ref();
-    if !is_git_repo(path) {
+    if !is_git_repo(path)? {
         return Err(GitError::NoRepository(path.to_string_lossy().to_string()));
     }
     let status = Command::new("git")
@@ -32,7 +32,7 @@ pub fn fetch(path: impl AsRef<Path>) -> Result<(), GitError> {
 /// Returns the output of the command in a string
 pub fn status(path: impl AsRef<Path>) -> Result<String, GitError> {
     let path = path.as_ref();
-    if !is_git_repo(path) {
+    if !is_git_repo(path)? {
         return Err(GitError::NoRepository(path.to_string_lossy().to_string()));
     }
     let output = Command::new("git")
@@ -51,6 +51,16 @@ pub fn status(path: impl AsRef<Path>) -> Result<String, GitError> {
 }
 
 /// Looks for a `.git` directory in the given path.
-fn is_git_repo(path: &Path) -> bool {
-    path.join(".git").exists()
+fn is_git_repo(path: &Path) -> Result<bool, GitError> {
+    let output = Command::new("git")
+        .arg("-C")
+        .arg(path)
+        .arg("rev-parse")
+        .arg("--is-inside-work-tree")
+        .output()?;
+    if output.status.success() {
+        Ok(String::from_utf8_lossy(&output.stdout).trim() == "true")
+    } else {
+        Err(GitError::NoRepository(path.to_string_lossy().to_string()))
+    }
 }
