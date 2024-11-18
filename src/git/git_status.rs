@@ -1,6 +1,6 @@
-use serde::{Deserialize, Serialize};
-use crate::git::parse::StatusHeader;
 use super::{git_error::GitError, utils::status};
+use crate::git::parse::StatusHeader;
+use serde::{Deserialize, Serialize};
 use std::{fmt, path::Path};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -68,15 +68,30 @@ impl GitStatus {
         self.num_tracked() + self.num_untracked()
     }
 
-    pub fn status_line(&self) -> String {
-        format!(
-            "[{}: ↑{} ↓{} | {} change{}]",
-            self.branch,
-            self.ahead,
-            self.behind,
-            self.total_changes(),
-            if self.total_changes() != 1 { "s" } else { "" }
-        )
+    pub fn status_line(&self, color: bool) -> String {
+        if color {
+            format!(
+                "[󰘬{} {}↑{}#[default] {}↓{}#[default] {}+{}#[default] {}?{}#[default]]",
+                self.branch,
+                if self.ahead != 0 { "#[fg=#fc8f21,bold]" } else { "" },
+                self.ahead,
+                if self.behind != 0 { "#[fg=#e80707,bold]" } else { "" },
+                self.behind,
+                if self.num_tracked() != 0 { "#[fg=#075fe0,bold]" } else { "" },
+                self.num_tracked(),
+                if self.num_untracked() != 0 { "#[fg=#9740ed,bold]" } else { "" },
+                self.num_untracked(),
+            )
+        } else {
+            format!(
+                "[󰘬{} ↑{} ↓{} +{} ?{}]",
+                self.branch,
+                self.ahead,
+                self.behind,
+                self.num_tracked(),
+                self.num_untracked(),
+            )
+        }
     }
 
     pub fn json(&self) -> String {
