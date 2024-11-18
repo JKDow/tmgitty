@@ -9,5 +9,7 @@ pub enum GitError {
     #[error("Failed to get status from repository")]
     StatusFailed,
     #[error("Path is not a git repository: {0}")]
-    NoRepository(String)
+    NoRepository(String),
+    #[error("Failed to parse git status output")]
+    ParseFailed,
 }
