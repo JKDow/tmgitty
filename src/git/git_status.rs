@@ -75,7 +75,7 @@ impl GitStatus {
             self.ahead,
             self.behind,
             self.total_changes(),
-            if self.total_changes() > 1 { "s" } else { "" }
+            if self.total_changes() != 1 { "s" } else { "" }
         )
     }
 
