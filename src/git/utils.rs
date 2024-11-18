@@ -1,5 +1,5 @@
 use std::{path::Path, process::Command};
-use crate::errors::GitError;
+use super::git_error::GitError;
 
 /// Runs git fetch and git status in the given path.
 pub fn fetch_and_status(path: impl AsRef<Path>) -> Result<String, GitError> {
@@ -39,6 +39,8 @@ pub fn status(path: impl AsRef<Path>) -> Result<String, GitError> {
         .arg("-C")
         .arg(path)
         .arg("status")
+        .arg("--branch")
+        .arg("--porcelain=2")
         .output()?;
 
     if output.status.success() {
